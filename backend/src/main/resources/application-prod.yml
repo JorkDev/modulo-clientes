@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 30
+  
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.jorkdev.clientes: INFO
+    org.springframework.web: WARN
+

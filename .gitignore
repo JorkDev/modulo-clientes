@@ -1,0 +1,29 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Backend
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+frontend/*.log
+
+# Docker
+docker-compose.override.yml
+

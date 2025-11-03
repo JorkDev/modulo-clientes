@@ -1,50 +1,77 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { ClienteService } from '../cliente/services/cliente.service';
+import { Cliente } from '../cliente/models/cliente.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="dash-grid">
-      <div class="card">
-        <h3>Clientes</h3>
-        <p>Gestión de clientes (demo). Accede a la lista de clientes.</p>
-        <div class="card-actions">
-          <button (click)="goTo('/clientes')" class="btn">Ir a Clientes</button>
-        </div>
-      </div>
+  <section class="page-head">
+    <h2>Información General</h2>
+    <p>En esta sección podrás ver la información general de la aplicación.</p>
+  </section>
 
-      <div class="card">
-        <h3>Demo opción</h3>
-        <p>Opción demo para futuras funcionalidades.</p>
-        <div class="card-actions">
-          <button class="btn" (click)="noop()">Ver demo</button>
-        </div>
-      </div>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-title">Total Clientes</div><div class="kpi-value">10</div><div class="kpi-sub">9 activos</div></div>
+    <div class="kpi"><div class="kpi-title">Total Documentos</div><div class="kpi-value">645</div><div class="kpi-sub">De todos los clientes</div></div>
+    <div class="kpi"><div class="kpi-title">Campañas Activas</div><div class="kpi-value">975</div><div class="kpi-sub">De todos los clientes</div></div>
+    <div class="kpi"><div class="kpi-title">Emails Enviados</div><div class="kpi-value">65</div><div class="kpi-sub">Por clientes</div></div>
+  </div>
 
-      <div class="card">
-        <h3>Perfil</h3>
-        <p>Información de la cuenta (demo).</p>
-        <div class="card-actions">
-          <button class="btn" (click)="noop()">Perfil</button>
-        </div>
-      </div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Ultimos Clientes</h3>
     </div>
+    <ul class="list">
+      <li *ngFor="let c of latestClientes">
+        <b>{{ c.nombre }} {{ c.apellido }}</b> — {{ c.email.replace('@','&#64;') }}
+      </li>
+      <li *ngIf="latestClientes.length === 0" class="muted">No hay clientes recientes</li>
+    </ul>
+  </div>
   `,
   styles: [`
-    .dash-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; }
-    .card { background:white; padding:1rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.04); }
-    .card h3 { margin:0 0 0.5rem 0; }
-    .card-actions { margin-top:1rem; display:flex; justify-content:flex-end; }
-    .btn { background:#0f172a; color:white; border:none; padding:0.5rem 0.9rem; border-radius:6px; }
+    .page-head h2{margin:0 0 4px}
+    .page-head p{margin:0;color:#6b7280}
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:14px 0 18px}
+    .kpi{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
+    .kpi-title{color:#6b7280;font-size:13px}
+    .kpi-value{font-size:28px;font-weight:800;line-height:1;margin-top:6px}
+    .kpi-sub{color:#9ca3af;font-size:12px}
+    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:12px}
+    .panel-head{padding:12px 14px;border-bottom:1px solid #e5e7eb}
+    .list{list-style:none;margin:0;padding:12px 16px}
+    .list li{padding:10px 0;border-bottom:1px dashed #f1f5f9}
+    .list li:last-child{border-bottom:none}
   `]
 })
-export class DashboardComponent {
-  constructor(private router: Router, private auth: AuthService) {}
+export class DashboardComponent implements OnInit {
+  latestClientes: Cliente[] = [];
 
-  goTo(path: string) { this.router.navigate([path]); }
-  noop() { alert('Demo - funcionalidad no implementada todavía'); }
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private clienteService: ClienteService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadLatestClientes();
+  }
+
+  private loadLatestClientes(): void {
+    this.clienteService
+      .getAll(0, 10, 'fechaCreacion', 'DESC')
+      .subscribe({
+        next: (res) => {
+          this.latestClientes = res.content ?? [];
+        },
+        error: () => {
+          this.latestClientes = [];
+        }
+      });
+  }
 }
